@@ -1,0 +1,12 @@
+[server]
+    addr = "127.0.0.1"          # eg: www.mojotv.cn eg:localhost eg:127.0.0.1
+    port = 8881
+    runMode = "debug"           # eg:debug eg:release eg:test
+    readTimeout = 60
+    writeTimeout = 60
+    apiPrefix = "v1"           # api前缀，一般为版本号,设置为后 api/{api_prefix}/resource
+    staticPath = "./static/"   # 静态路径,必须是绝对路径或相对于go build可执行文件
+    logDir    = "./runtime/logs/http"   # logs的目录
+
+[log]
+    baseDir = "./runtime/logs/logging"
