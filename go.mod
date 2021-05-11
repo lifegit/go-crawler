@@ -12,6 +12,7 @@ require (
 	github.com/qiniu/qmgo v0.9.3
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.7.1
+    github.com/gocolly/colly/v2 v2.1.0
 	go-gulu v0.0.0-00010101000000-000000000000
 )
 

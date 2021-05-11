@@ -11,7 +11,7 @@
     |-- common                                    # 一些常用工具
     |   |-- appLogging                            # 整个应用的log
     |   |-- mapp                                  # 整个应用的工具集合，包含初始化、路由、等等 
-    |   |-- mediem                                # 用于微服务的中间件，类似gin的Use
+    |   |-- mediem                                # 用于🕷️的中间件，思想来自gin的Context
     |   |-- spider                                # 爬虫的基础工具，chromedp 、colly 等
     |-- conf                                      # 配置文件
     |-- docs                                      # 文档  
@@ -59,6 +59,7 @@
 ### 感谢
 - [gin-gonic/gin](https://github.com/gin-gonic/gin)
 - [chromedp](https://github.com/chromedp/chromedp)
+- [colly](https://github.com/gocolly/colly)
 - [logrus](https://github.com/sirupsen/logrus)
 - [viper](https://github.com/spf13/viper)
 - [go-redis](https://github.com/go-redis/redis)
