@@ -4,6 +4,7 @@ crawler
 *.log
 conf/*
 !conf/dev
+!conf/base.toml
 .idea/*
 .idea
 .vscode/*
