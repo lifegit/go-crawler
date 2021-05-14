@@ -4,4 +4,4 @@
  */
 package constant
 
-const AppName = "pkgGo"
+const ServiceName = "pkgGo"

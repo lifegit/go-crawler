@@ -7,18 +7,20 @@ package tasks
 import (
 	"fmt"
 	"go-crawler/common/mediem"
-	"go-crawler/common/mediem/midMiddleware"
+	"go-crawler/common/utils"
+	"go-crawler/services/pkgGo/constant"
 )
+
+var printingTask *mediem.Context
+
+func init() {
+	printingTask = utils.NewAweMediem(constant.ServiceName, "printing", printing)
+}
 
 var count = 0
 
-func printing() {
-	fetch := func(c *mediem.Context) {
-		count++
-		c.Result.Data = count
-		fmt.Println("task examples")
-	}
-
-	var me mediem.Context
-	me.Use(midMiddleware.Recovery(), fetch, loggerMid).Run()
+func printing(c *mediem.Context) {
+	count++
+	c.Result.Data = count
+	fmt.Println("task examples")
 }

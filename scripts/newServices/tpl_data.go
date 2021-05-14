@@ -10,17 +10,18 @@ var tIndex = tplNode{
 package {{.ServiceName}}
 
 import (
+	"fmt"
 	"go-crawler/common/appLogging"
 	"go-crawler/{{.ServiceDir}}/{{.ServiceName}}/constant"
-	_ "go-crawler/{{.ServiceDir}}/{{.ServiceName}}/handlers/v1"
+	"go-crawler/{{.ServiceDir}}/{{.ServiceName}}/handlers/v1"
 	"go-crawler/{{.ServiceDir}}/{{.ServiceName}}/tasks"
-	"fmt"
 )
 
 func Setup() {
-	appLogging.Log.Info(fmt.Sprintf("service run %s", constant.AppName))
+	appLogging.Log.Info(fmt.Sprintf("service run %s", constant.ServiceName))
 
-	go tasks.RunTasks()
+	v1.Run()
+	go tasks.Run()
 }
 `,
 }
@@ -30,32 +31,31 @@ var tConstantIndex = tplNode{
 	`
 package constant
 
-
-const AppName = "{{.ServiceName}}"
+const ServiceName = "{{.ServiceName}}"
 `,
 }
 
 var tHandlersAppIndex = tplNode{
-	"handlers/v1/h_app.go",
+	"handlers/v1/v1.go",
 	`
 package v1
 
 import (
-	"go-crawler/common/mapp"
+	"go-crawler/common/utils"
 	"go-crawler/{{.ServiceDir}}/{{.ServiceName}}/constant"
-	"github.com/gin-gonic/gin"
 )
 
-var api *gin.RouterGroup
-
-func init() {
-	api = mapp.Result.Api.Group(constant.AppName).Group("v1")
+func Run()  {
+	v1 := utils.NewAweHandlers(constant.ServiceName, "v1")
+	{
+		v1.GET("example", example)
+	}
 }
 `,
 }
 
 var tHandlersExampleIndex = tplNode{
-	"handlers/v1/h_example.go",
+	"handlers/v1/example.go",
 	`
 package v1
 
@@ -63,11 +63,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-gulu/app"
 )
-
-
-func init() {
-	api.GET("example", example)
-}
 
 //All
 func example(c *gin.Context) {
@@ -82,21 +77,24 @@ var tTasksPrintingIndex = tplNode{
 package tasks
 
 import (
-	"go-crawler/common/mediem"
-	"go-crawler/common/mediem/midMiddleware"
 	"fmt"
+	"go-crawler/common/mediem"
+	"go-crawler/common/utils"
+	"go-crawler/{{.ServiceDir}}/{{.ServiceName}}/constant"
 )
 
-var count = 0
-func printing()  {
-	fetch := func(c *mediem.Context) {
-		count++
-		c.Result.Data = count
-		fmt.Println("task examples")
-	}
+var printingTask *mediem.Context
 
-	var me mediem.Context
-	me.Use(midMiddleware.Recovery(), fetch, loggerMid).Run()
+func init() {
+	printingTask = utils.NewAweMediem(constant.ServiceName, "printing", printing)
+}
+
+
+var count = 0
+func printing(c *mediem.Context) {
+	count++
+	c.Result.Data = count
+	fmt.Println("task examples")
 }
 `,
 }
@@ -104,39 +102,45 @@ func printing()  {
 var tTasksSearchIndex = tplNode{
 	"tasks/search.go",
 	`
+/**
+* @Author: TheLife
+* @Date: 2021/5/10 上午10:21
+ */
 package tasks
 
 import (
-	"go-crawler/common/mediem"
-	"go-crawler/common/mediem/midMiddleware"
-	"go-crawler/common/spider/chromedpp"
 	"github.com/chromedp/chromedp"
+	"go-crawler/common/mediem"
+	"go-crawler/common/utils"
+	"go-crawler/{{.ServiceDir}}/{{.ServiceName}}/constant"
 )
 
+var searchTask *mediem.Context
 
-func search()  {
-	fetch := func(c *mediem.Context) {
-		// 1. create chrome instance
-		ctx, cancel := chromedpp.NewChromeDp(10, true)
-		defer cancel()
-
-		// 2. search baidu
-		var example string
-		err := chromedp.Run(*ctx,
-			chromedp.Navigate("https://pkg.go.dev/time"),
-	// wait for footer element is visible (ie, page is loaded)
-	chromedp.WaitVisible("body > footer"),
-	// find and click "Example" link
-	chromedp.Click("#example-After", chromedp.NodeVisible),
-	// retrieve the text of the textarea
-	chromedp.Value("#example-After textarea", &example),
-)
-
-	c.Result.Err = err
+func init() {
+	searchTask = utils.NewAweMediem(constant.ServiceName, "search", search)
 }
 
-var me mediem.Context
-me.Use(midMiddleware.Recovery(), fetch, loggerMid).Run()
+
+func search(c *mediem.Context) {
+	// 1. create chrome instance
+	ctx, cancel := utils.NewAweChromeDp(10, true)
+	defer cancel()
+
+	// 2. search baidu
+	var example string
+	err := chromedp.Run(*ctx,
+		chromedp.Navigate("https://pkg.go.dev/time"),
+		// wait for footer element is visible (ie, page is loaded)
+		chromedp.WaitVisible("body > footer"),
+		// find and click "Example" link
+		chromedp.Click("#example-After", chromedp.NodeVisible),
+		// retrieve the text of the textarea
+		chromedp.Value("#example-After textarea", &example),
+	)
+
+	c.Result.Data = example
+	c.Result.Err = err
 }
 `,
 }
@@ -147,31 +151,13 @@ var tTasksTaskIndex = tplNode{
 package tasks
 
 import (
-	"go-crawler/common/appLogging"
-	"go-crawler/common/mediem"
-	"go-crawler/common/mediem/midMiddleware"
-	"go-crawler/{{.ServiceDir}}/{{.ServiceName}}/constant"
-	"fmt"
 	"go-gulu/core"
 )
 
-var tasks *core.Scheduler
-var loggerMid mediem.HandlerFunc
-
-func init() {
-	tasks = core.NewScheduler()
-
-	loggerM, err := midMiddleware.NewLoggerMiddleware(true, true, constant.AppName, fmt.Sprintf("./runtime/logs/{{.ServiceDir}}/%s/examples", constant.AppName))
-	if err != nil{
-		appLogging.Log.WithError(err).Fatal(fmt.Sprintf("services server fail run %s !", constant.AppName), err)
-	}
-	loggerMid = loggerM
-}
-
-
-func RunTasks()  {
-	tasks.Every(5).Seconds().Do(printing).Run()
-	tasks.Every(5).Seconds().Do(search)
+func Run() {
+	tasks := core.NewScheduler()
+	tasks.Every(5).Seconds().Do(func () {printingTask.Run()}).Run()
+	tasks.Every(8).Seconds().Do(func() {searchTask.Run()})
 
 	<-tasks.Start()
 }

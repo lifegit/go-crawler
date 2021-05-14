@@ -12,8 +12,11 @@ require (
 	github.com/qiniu/qmgo v0.9.3
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.7.1
-    github.com/gocolly/colly/v2 v2.1.0
 	go-gulu v0.0.0-00010101000000-000000000000
+	go.mongodb.org/mongo-driver v1.5.1
+	google.golang.org/protobuf v1.24.0 // indirect
+	gorm.io/driver/postgres v1.1.0
+	gorm.io/gorm v1.21.9
 )
 
 replace go-gulu => /Users/yxs/GolandProjects/src/go-gulu

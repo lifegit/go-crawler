@@ -3,6 +3,7 @@ package midMiddleware
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"go-crawler/common/mediem"
 	"go-gulu/logging"
 	"io"
@@ -24,15 +25,15 @@ var (
 type LogFormatterParams struct {
 	TimeStamp   time.Time   `json:"time"`
 	ServiceName string      `json:"service_name"`
-	Data        mediem.Data `json:"data"`
+	Result      mediem.Data `json:"result"`
 }
 
 var stdoutLogFormatter = func(param LogFormatterParams) string {
 	statusCode, statusColor, statusContent := func() (string, string, interface{}) {
-		if param.Data.Err != nil {
-			return "fail", yellow, param.Data.Err.Error()
+		if param.Result.Err != nil {
+			return "fail", yellow, param.Result.Err.Error()
 		}
-		return "success", green, param.Data.Data
+		return "success", green, param.Result.Data
 	}()
 
 	return fmt.Sprintf("[MEDIEM %s] %v |%s %s %s \n%v\n",
@@ -41,6 +42,15 @@ var stdoutLogFormatter = func(param LogFormatterParams) string {
 		statusColor, statusCode, reset,
 		statusContent,
 	)
+}
+
+func NewLoggerMiddlewareSmoothFail(isStdout, isWriter bool, serviceName string, writerDir string, logrus *logrus.Logger) mediem.HandlerFunc {
+	res, err := NewLoggerMiddleware(isStdout, isWriter, serviceName, writerDir)
+	if err != nil {
+		logrus.WithError(err).WithField("writerDir", writerDir).Fatal("NewLoggerMiddlewareSmoothFail")
+	}
+
+	return res
 }
 
 func NewLoggerMiddleware(isStdout, isWriter bool, serviceName string, writerDir string) (mediem.HandlerFunc, error) {
@@ -61,7 +71,7 @@ func NewLoggerMiddleware(isStdout, isWriter bool, serviceName string, writerDir 
 		param := LogFormatterParams{
 			TimeStamp:   timestamp,
 			ServiceName: serviceName,
-			Data:        c.Result,
+			Result:      c.Result,
 		}
 		bytes, _ := json.Marshal(param)
 

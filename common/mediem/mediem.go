@@ -21,8 +21,13 @@ type Context struct {
 	handlers HandlersChain
 }
 type Data struct {
-	Err  error
-	Data interface{}
+	Err  error       `json:"err,omitempty"`
+	Data interface{} `json:"data"`
+}
+
+func NewContext() *Context {
+	var c Context
+	return &c
 }
 
 func (c *Context) Use(middleware ...HandlerFunc) *Context {
@@ -31,7 +36,7 @@ func (c *Context) Use(middleware ...HandlerFunc) *Context {
 	return c
 }
 
-func (c *Context) Run(middleware ...HandlerFunc) *Context {
+func (c *Context) Run() *Context {
 	c.Next()
 
 	return c
@@ -41,6 +46,11 @@ func (c *Context) Run(middleware ...HandlerFunc) *Context {
 // It executes the pending handlers in the chain inside the calling handler.
 // See example in GitHub.
 func (c *Context) Next(middleware ...HandlerFunc) *Context {
+	//// todo gin 怎么实现
+	//if c.index > int8(len(c.handlers)) {
+	//	c.index = 0
+	//}
+
 	c.index++
 	for c.index < int8(len(c.handlers)) {
 		c.handlers[c.index](c)

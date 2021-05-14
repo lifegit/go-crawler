@@ -13,5 +13,5 @@ import (
 var Log *logrus.Logger
 
 func init() {
-	Log = logging.NewLogger(conf.GetString("log.baseDir"), 3, &logrus.JSONFormatter{}, nil)
+	Log = logging.NewLogger(conf.GetString("app.log"), 3, &logrus.JSONFormatter{}, nil)
 }

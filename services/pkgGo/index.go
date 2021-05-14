@@ -8,12 +8,13 @@ import (
 	"fmt"
 	"go-crawler/common/appLogging"
 	"go-crawler/services/pkgGo/constant"
-	_ "go-crawler/services/pkgGo/handlers/v1"
+	"go-crawler/services/pkgGo/handlers/v1"
 	"go-crawler/services/pkgGo/tasks"
 )
 
 func Setup() {
-	appLogging.Log.Info(fmt.Sprintf("service run %s", constant.AppName))
+	appLogging.Log.Info(fmt.Sprintf("service run %s", constant.ServiceName))
 
-	go tasks.RunTasks()
+	v1.Run()
+	go tasks.Run()
 }
