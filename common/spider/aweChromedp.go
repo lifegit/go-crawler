@@ -2,7 +2,7 @@
 * @Author: TheLife
 * @Date: 2021/5/10 下午3:56
  */
-package utils
+package spider
 
 import (
 	"context"
@@ -29,7 +29,7 @@ func NewAweChromeDp(timeOutSecond time.Duration, isDebug bool) (*context.Context
 	//defer cancel()
 
 	// 3. create a timeout
-	ctx, cancel = context.WithTimeout(ctx, timeOutSecond*time.Second)
+	ctx, cancel = context.WithTimeout(ctx, timeOutSecond * time.Second)
 	//defer cancel()
 
 	return &ctx, cancel

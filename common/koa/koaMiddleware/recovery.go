@@ -2,13 +2,13 @@
 * @Author: TheLife
 * @Date: 2021/5/10 上午11:48
  */
-package midMiddleware
+package koaMiddleware
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
-	"go-crawler/common/conf"
-	"go-crawler/common/mediem"
+	"go-crawler/common/koa"
 	"io"
 	"io/ioutil"
 	"log"
@@ -31,36 +31,35 @@ var (
 var DefaultErrorWriter io.Writer = os.Stderr
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
-func Recovery() mediem.HandlerFunc {
+func Recovery() koa.HandlerFunc {
 	return RecoveryWithWriter(DefaultErrorWriter)
 }
 
-func IsDebugging() bool {
-	return conf.GetString("env") == "dev"
-}
-
 // RecoveryWithWriter returns a middleware for a given writer that recovers from any panics and writes a 500 if there was one.
-func RecoveryWithWriter(out io.Writer) mediem.HandlerFunc {
+func RecoveryWithWriter(out io.Writer) koa.HandlerFunc {
 	var logger *log.Logger
 	if out != nil {
 		logger = log.New(out, "\n\n\x1b[31m", log.LstdFlags)
 	}
-	return func(c *mediem.Context) {
+	return func(c *koa.Context) {
 		defer func() {
 			if err := recover(); err != nil {
 
 				if logger != nil {
 					stack := stack(3)
-					if IsDebugging() {
-						logger.Printf("[Recovery] %s panic recovered:\n%s\n%s\n%s%s",
-							timeFormat(time.Now()), err.(string)+"\r\n", err, stack, reset)
-					} else {
-						logger.Printf("[Recovery] %s panic recovered:\n%s\n%s%s",
-							timeFormat(time.Now()), err, stack, reset)
-					}
+					logger.Printf("[Recovery] %s panic recovered:\n%s\n%s%s",
+						timeFormat(time.Now()), err, stack, reset)
 				}
 
-				c.Error(err.(error)) // nolint: errcheck
+				switch err.(type) {
+					case string:
+						c.Error(errors.New(err.(string)))
+					case error:
+						c.Error(err.(error))
+					default:
+						c.Error(errors.New("Unable Parse Error"))
+				}
+
 				c.Abort()
 			}
 		}()

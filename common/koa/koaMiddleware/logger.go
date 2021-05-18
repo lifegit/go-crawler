@@ -1,10 +1,10 @@
-package midMiddleware
+package koaMiddleware
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"go-crawler/common/mediem"
+	"go-crawler/common/koa"
 	"go-gulu/logging"
 	"io"
 	"os"
@@ -23,9 +23,9 @@ var (
 )
 
 type LogFormatterParams struct {
-	TimeStamp   time.Time   `json:"time"`
-	ServiceName string      `json:"service_name"`
-	Result      mediem.Data `json:"result"`
+	TimeStamp   time.Time `json:"time"`
+	ServiceName string    `json:"service_name"`
+	Result      koa.Data  `json:"result"`
 }
 
 var stdoutLogFormatter = func(param LogFormatterParams) string {
@@ -36,7 +36,7 @@ var stdoutLogFormatter = func(param LogFormatterParams) string {
 		return "success", green, param.Result.Data
 	}()
 
-	return fmt.Sprintf("[MEDIEM %s] %v |%s %s %s \n%v\n",
+	return fmt.Sprintf("[MEDIEM %s] %v |%s %s %s| %v\n",
 		param.ServiceName,
 		param.TimeStamp.Format("2006/01/02 - 15:04:05"),
 		statusColor, statusCode, reset,
@@ -44,7 +44,7 @@ var stdoutLogFormatter = func(param LogFormatterParams) string {
 	)
 }
 
-func NewLoggerMiddlewareSmoothFail(isStdout, isWriter bool, serviceName string, writerDir string, logrus *logrus.Logger) mediem.HandlerFunc {
+func NewLoggerMiddlewareSmoothFail(isStdout, isWriter bool, serviceName string, writerDir string, logrus *logrus.Logger) koa.HandlerFunc {
 	res, err := NewLoggerMiddleware(isStdout, isWriter, serviceName, writerDir)
 	if err != nil {
 		logrus.WithError(err).WithField("writerDir", writerDir).Fatal("NewLoggerMiddlewareSmoothFail")
@@ -53,7 +53,7 @@ func NewLoggerMiddlewareSmoothFail(isStdout, isWriter bool, serviceName string, 
 	return res
 }
 
-func NewLoggerMiddleware(isStdout, isWriter bool, serviceName string, writerDir string) (mediem.HandlerFunc, error) {
+func NewLoggerMiddleware(isStdout, isWriter bool, serviceName string, writerDir string) (koa.HandlerFunc, error) {
 	var writer io.Writer
 	if isWriter {
 		w, err := logging.NewRotateIO(writerDir, 5)
@@ -63,7 +63,7 @@ func NewLoggerMiddleware(isStdout, isWriter bool, serviceName string, writerDir 
 		writer = w
 	}
 
-	return func(c *mediem.Context) {
+	return func(c *koa.Context) {
 		c.Next()
 
 		timestamp := time.Now()

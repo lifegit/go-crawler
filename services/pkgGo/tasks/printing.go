@@ -6,12 +6,12 @@ package tasks
 
 import (
 	"fmt"
-	"go-crawler/common/mediem"
+	"go-crawler/common/koa"
 	"go-crawler/common/utils"
 	"go-crawler/services/pkgGo/constant"
 )
 
-var printingTask *mediem.Context
+var printingTask *koa.Context
 
 func init() {
 	printingTask = utils.NewAweMediem(constant.ServiceName, "printing", printing)
@@ -19,8 +19,8 @@ func init() {
 
 var count = 0
 
-func printing(c *mediem.Context) {
+func printing(k *koa.Context) {
 	count++
-	c.Result.Data = count
+	k.Result.Data = count
 	fmt.Println("task examples")
 }

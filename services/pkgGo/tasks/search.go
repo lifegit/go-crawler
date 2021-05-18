@@ -6,20 +6,21 @@ package tasks
 
 import (
 	"github.com/chromedp/chromedp"
-	"go-crawler/common/mediem"
+	"go-crawler/common/koa"
+	"go-crawler/common/spider"
 	"go-crawler/common/utils"
 	"go-crawler/services/pkgGo/constant"
 )
 
-var searchTask *mediem.Context
+var searchTask *koa.Context
 
 func init() {
 	searchTask = utils.NewAweMediem(constant.ServiceName, "search", search)
 }
 
-func search(c *mediem.Context) {
+func search(k *koa.Context) {
 	// 1. create chrome instance
-	ctx, cancel := utils.NewAweChromeDp(10, true)
+	ctx, cancel := spider.NewAweChromeDp(10, true)
 	defer cancel()
 
 	// 2. search baidu
@@ -34,6 +35,6 @@ func search(c *mediem.Context) {
 		chromedp.Value(`#example-After textarea`, &example),
 	)
 
-	c.Result.Data = example
-	c.Result.Err = err
+	k.Result.Data = example
+	k.Result.Err = err
 }

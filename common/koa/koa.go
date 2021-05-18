@@ -1,10 +1,13 @@
 /**
 * @Author: TheLife
-* @Date: 2021/5/10 上午11:02
+* @Date: 2021/5/18 下午3:36
  */
-package mediem
+package koa
 
 import "math"
+
+// koa洋葱模型，gin中间件思想也如同。
+// 感谢：https://blog.csdn.net/raoxiaoya/article/details/109444890
 
 const abortIndex int8 = math.MaxInt8 / 2
 
@@ -14,56 +17,62 @@ type HandlerFunc func(*Context)
 // HandlersChain defines a HandlerFunc array.
 type HandlersChain []HandlerFunc
 
-type Context struct {
-	Result Data
-
-	index    int8
-	handlers HandlersChain
-}
+// Context Data
 type Data struct {
 	Err  error       `json:"err,omitempty"`
 	Data interface{} `json:"data"`
 }
 
+// Context
+type Context struct {
+	Result Data
+
+	handlers HandlersChain
+	index    int8
+}
+
+// New
 func NewContext() *Context {
-	var c Context
-	return &c
-}
-
-func (c *Context) Use(middleware ...HandlerFunc) *Context {
-	c.handlers = append(c.handlers, middleware...)
-
-	return c
-}
-
-func (c *Context) Run() *Context {
-	c.Next()
-
-	return c
+	return &Context{}
 }
 
 // Next should be used only inside middleware.
 // It executes the pending handlers in the chain inside the calling handler.
 // See example in GitHub.
-func (c *Context) Next(middleware ...HandlerFunc) *Context {
-	//// todo gin 怎么实现
-	//if c.index > int8(len(c.handlers)) {
-	//	c.index = 0
-	//}
-
+func (c *Context) Next() {
 	c.index++
 	for c.index < int8(len(c.handlers)) {
 		c.handlers[c.index](c)
 		c.index++
 	}
+}
+
+// Run from the first position of the context
+func (c *Context) Run() *Context {
+	if len(c.handlers) <= 0{
+		panic("no exist handlers")
+	}
+
+	c.index = 0
+	c.handlers[c.index](c)
+	c.Next()
 
 	return c
 }
 
-// IsAborted returns true if the current context was aborted.
-func (c *Context) IsAborted() bool {
-	return c.index >= abortIndex
+// Use attaches a global middleware to the router. ie. the middleware attached though Use() will be
+// For example, this is the right place for a logger or error management middleware.
+func (c *Context) Use(middleware ...HandlerFunc) *Context {
+	c.handlers = append(c.handlers, middleware...)
+
+	// limit the number of handlers
+	if len(c.handlers) >= int(abortIndex) {
+		panic("too many handlers")
+	}
+
+	return c
 }
+
 
 // Abort prevents pending handlers from being called. Note that this will not stop the current handler.
 // Let's say you have an authorization middleware that validates that the current request is authorized.
@@ -71,6 +80,11 @@ func (c *Context) IsAborted() bool {
 // for this request are not called.
 func (c *Context) Abort() {
 	c.index = abortIndex
+}
+
+// IsAborted returns true if the current context was aborted.
+func (c *Context) IsAborted() bool {
+	return c.index >= abortIndex
 }
 
 // Error attaches an error to the current context. The error is pushed to a list of errors.

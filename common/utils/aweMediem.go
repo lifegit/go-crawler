@@ -9,16 +9,16 @@ import (
 	"go-crawler/common/appLogging"
 	"go-crawler/common/conf"
 	"go-crawler/common/mapp"
-	"go-crawler/common/mediem"
-	"go-crawler/common/mediem/midMiddleware"
+	"go-crawler/common/koa"
+	"go-crawler/common/koa/koaMiddleware"
 	"go-gulu/ginMiddleware/mwLogger"
 	"path"
 )
 
-func NewAweMediem(serviceName, methodName string, workHandlerFunc mediem.HandlerFunc) *mediem.Context {
-	loggerMid := midMiddleware.NewLoggerMiddlewareSmoothFail(true, true, serviceName, path.Join(conf.GetString("service.log"), serviceName, "task", methodName), appLogging.Log)
-	printingTask := mediem.NewContext()
-	printingTask.Use(midMiddleware.Recovery(), workHandlerFunc, loggerMid)
+func NewAweMediem(serviceName, methodName string, workHandlerFunc koa.HandlerFunc) *koa.Context {
+	loggerMid := koaMiddleware.NewLoggerMiddlewareSmoothFail(true, true, serviceName, path.Join(conf.GetString("service.log"), serviceName, "task", methodName), appLogging.Log)
+	printingTask := koa.NewContext()
+	printingTask.Use(koaMiddleware.Recovery(), workHandlerFunc, loggerMid)
 
 	return printingTask
 }
