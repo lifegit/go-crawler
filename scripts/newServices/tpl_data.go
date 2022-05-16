@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/11 上午9:05
- */
 package newServices
 
 var tIndex = tplNode{
@@ -61,7 +57,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-gulu/app"
+	"github.com/lifegit/go-gulu/app"
 )
 
 //All
@@ -102,10 +98,7 @@ func printing(k *koa.Context) {
 var tTasksSearchIndex = tplNode{
 	"tasks/search.go",
 	`
-/**
-* @Author: TheLife
-* @Date: 2021/5/10 上午10:21
- */
+
 package tasks
 
 import (
@@ -151,7 +144,7 @@ var tTasksTaskIndex = tplNode{
 package tasks
 
 import (
-	"go-gulu/core"
+	"github.com/lifegit/go-gulu/core"
 )
 
 func Run() {

@@ -1,20 +1,16 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/10 上午10:21
- */
 package tasks
 
 import (
 	"fmt"
-	"go-crawler/common/koa"
-	"go-crawler/common/utils"
+	"github.com/lifegit/go-gulu/v2/nice/koa"
+	"go-crawler/app"
 	"go-crawler/services/pkgGo/constant"
 )
 
 var printingTask *koa.Context
 
 func init() {
-	printingTask = utils.NewAweMediem(constant.ServiceName, "printing", printing)
+	printingTask = app.NewAweMediem(constant.ServiceName, "printing", printing)
 }
 
 var count = 0

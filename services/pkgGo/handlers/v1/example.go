@@ -2,10 +2,10 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-gulu/app"
+	"github.com/lifegit/go-gulu/v2/pkg/out"
 )
 
 //All
 func example(c *gin.Context) {
-	app.JsonSuccess(c)
+	out.JsonSuccess(c)
 }

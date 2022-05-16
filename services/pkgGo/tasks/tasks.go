@@ -1,12 +1,6 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/10 上午10:20
- */
 package tasks
 
-import (
-	"go-gulu/core"
-)
+import "github.com/lifegit/go-gulu/v2/nice/core"
 
 func Run() {
 	tasks := core.NewScheduler()

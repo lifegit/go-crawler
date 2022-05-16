@@ -1,19 +1,20 @@
 package main
 
 import (
-	"go-crawler/common/mapp"
+	"go-crawler/app"
 	"go-crawler/services/pkgGo"
 )
 
-// 注册服务
+// SetUpServer 注册服务
 func SetUpServer() {
 	pkgGo.Setup()
 }
 
 func main() {
-	defer mapp.ServerClose()
+	defer app.Close()
 
+	app.Log.Infof("app: %s , version: %d at start ...", app.Global.App.Name, app.Global.App.Version)
 	go SetUpServer()
 
-	mapp.ServerRun()
+	app.Run()
 }

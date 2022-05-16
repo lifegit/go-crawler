@@ -4,21 +4,25 @@
     runMode = "debug"           # eg:debug eg:release eg:test
     readTimeout = 60
     writeTimeout = 60
-    apiPrefix = ""           # api前缀，一般为版本号,设置为后 api/{api_prefix}/resource
+    apiPrefix = ""           # api前缀，一般为版本号,设置为后 {api_prefix}/v1/resource
     staticPath = "./static/"   # 静态路径,必须是绝对路径或相对于go build可执行文件
-    isCors = true
-    isNotRoute = true
-    isSwagger = true
-    isHttps = false
+    httpLogDir = "./runtime/logs/http"   # httpLog目录,空则不开启log
+    isNotRoute = true             # 如果为true,则所有未找到的路由都将转到static/index.html。
+    isSwagger = true              # 开启 swagger api doc
+    isCors = true                 # 开启cors跨域限制
+    isHttps = false               # 如果 addr 为域名，则是否开启https,证书来自 LetsEncrypt
+
+
 
 [service]
     log = "./runtime/logs/service"
 
 
 [db]
-    isLog = true
+    type = "mysql"
     port = 3306
     addr = "127.0.0.1"
     database = "saletoday"
     username = "com1yema1mysq1ok"
     password = "new1pwd1yema1ok1_"
+    charset = "utf8"
